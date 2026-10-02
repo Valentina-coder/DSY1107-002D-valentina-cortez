@@ -64,30 +64,31 @@ Justificación: Tolerancia a fallos, si la api de facturacion estan caidos, el p
 
 1. Diagrama de Arquitectura y flujo
 
-                               \[ Cliente \]  
-                                      |  
-                                      | 1\. POST /pedidos (Síncrono)  
-                                      v  
-                             \+---------------+  
-                            |  ms-pedidos   |  
-                             \+---------------+  
-                                   /           \\  
-     2\. HTTP REST     /             \\ 3\. Evento: PedidoPagado  
-          (Síncrono)     /                \\    (Asíncrono)  
-                              v                  v  
-          \+-------------------+     \+------------------+  
-          | ms-pasarela-pagos |     | pedidos.exchange | (RabbitMQ)  
-          \+-------------------+     \+------------------+  
-                                        /          \\  
-                 Routing Key  /            \\ Routing Key:  
-         "pedido.pagado"  /              \\ "pedido.pagado"  
-                                   v                v  
-                           \+---------------+  \+---------------+  
-                         | Queue Factura |  | Queue Notif.  |  
-                            \+---------------+  \+---------------+  
-                                      |                   |  
-                                     v                  v  
-                             \+---------------+  \+-------------------+  
-                             |ms-facturacion |  | ms-notificaciones |  
-                             \+---------------+  \+-------------------+  
-                               (Consumer 1\)         (Consumer 2\)  
+                             
+                               [ Cliente ]
+                                      |
+                                      | 1. POST /pedidos (Síncrono)
+                                      v
+                             +---------------+
+                             |  ms-pedidos   |
+                             +---------------+
+                                   /           \
+                 2. HTTP REST     /             \ 3. Evento: PedidoPagado
+                  (Síncrono)     /                \    (Asíncrono)
+                                 v                  v
+                   +-------------------+     +------------------+
+                   | ms-pasarela-pagos |     | pedidos.exchange | (RabbitMQ)
+                    +-------------------+     +------------------+
+                                        /          \
+                          Routing Key  /            \ Routing Key:
+                     "pedido.pagado"  /              \ "pedido.pagado"
+                                     v                v
+                           +---------------+  +---------------+
+                            | Queue Factura |  | Queue Notif.  |
+                            +---------------+  +---------------+
+                                      |                   |
+                                      v                  v
+                             +---------------+  +-------------------+
+                             |ms-facturacion |  | ms-notificaciones |
+                             +---------------+  +-------------------+
+                               (Consumer 1)         (Consumer 2)
